@@ -1,5 +1,5 @@
-from onep.distance import pairwise_correlation
-from onep.network import (
+from citalopram_project.correlations import pairwise_correlation
+from citalopram_project.ensemble.humphries import (
     humphries_ensemble,
     communities_test,
     modularity_test,
@@ -68,14 +68,12 @@ def find_ensembles(
 
 
 def _create_ensemble_stats(
-    modularity,
-    modularity_pval,
+    mod,
     communities,
     community_scores,
     community_pvals,
     community_similarities,
 ):
-
     sers = []
     for i, (stats) in enumerate(
         zip(communities, community_scores, community_pvals, community_similarities)
@@ -83,8 +81,7 @@ def _create_ensemble_stats(
         com, score, pval, sim = stats
         ser = pd.Series(
             {
-                "modularity": modularity,
-                "modularity_pval": modularity_pval,
+                "modularity": mod,
                 "ensemble": i,
                 "size": len(com),
                 "score": score,
@@ -104,21 +101,6 @@ def _create_ensemble_df(coms):
     return pd.concat(frames)
 
 
-def get_ensemble_sig(ensemble_stats_df, min_similarity=0.1, min_size=3):
-    ensemble_stats_df = ensemble_stats_df.assign(
-        ensemble_sig=np.where(
-            (ensemble_stats_df["score_pval"] < 0.05)
-            & (ensemble_stats_df["simmilarity"] > min_similarity)
-            & (ensemble_stats_df["modularity_pval"] < 0.05)
-            & (~np.isnan(ensemble_stats_df["modularity"]))
-            & (ensemble_stats_df["size"] >= min_size),
-            True,
-            False,
-        )
-    )
-    return ensemble_stats_df
-
-
 def get_ensemble_id(ensemble_stats_df, ensemble_df):
     ensemble_stats_df = (
         ensemble_stats_df.reset_index()
@@ -132,6 +114,20 @@ def get_ensemble_id(ensemble_stats_df, ensemble_df):
     ensemble_stats_df = ensemble_stats_df.drop("ensemble", axis=1)
     ensemble_df = ensemble_df.drop("ensemble", axis=1)
     return ensemble_stats_df, ensemble_df
+
+
+def get_ensemble_sig(ensemble_stats_df, min_similarity=0.1, min_size=3):
+    ensemble_stats_df = ensemble_stats_df.assign(
+        ensemble_sig=np.where(
+            (ensemble_stats_df["score_pval"] < 0.05)
+            & (ensemble_stats_df["simmilarity"] > min_similarity)
+            & (~np.isnan(ensemble_stats_df["modularity"]))
+            & (ensemble_stats_df["size"] >= min_size),
+            True,
+            False,
+        )
+    )
+    return ensemble_stats_df
 
 
 def drop_non_sig_ensembles(ensemble_stats_df, ensemble_df):

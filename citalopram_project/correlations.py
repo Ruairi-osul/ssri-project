@@ -63,6 +63,7 @@ def shuffled_isi_correlation_test(
     fillna: Optional[float] = 0,
     sigma: float = 0,
     show_progress: bool = False,
+    rectify: bool = False,
 ) -> pd.DataFrame:
 
     corr_getter = Pipeline(
@@ -75,7 +76,7 @@ def shuffled_isi_correlation_test(
                     spiketimes_col=spiketimes_col,
                     t_start=t_start,
                     sigma=sigma,
-                    rectify=True,
+                    rectify=rectify,
                     zero_diag=True,
                     fillna=fillna,
                 ),
