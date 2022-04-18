@@ -112,7 +112,7 @@ def pivot(
     Returns:
         pd.DataFrame: DataFrame with one column per neuron and one row per timepoint
     """
-    return pd.pivot(df, values=value_col, index=neuron_col, columns=time_col)
+    return pd.pivot(df, values=value_col, index=time_col, columns=neuron_col)
 
 
 def rename(df: pd.DataFrame, **column_mapping: Dict[str, str]):
